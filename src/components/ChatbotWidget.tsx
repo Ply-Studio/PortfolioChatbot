@@ -344,35 +344,35 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
           {/* Main Body: Either Lead Capture Form (Feature 6) OR Chat Conversation */}
           {!activeConversation ? (
-            <div className="flex-1 px-4 py-3 sm:px-5 sm:py-3.5 overflow-y-auto flex flex-col justify-between">
+            <div className="flex-1 px-4 py-3 sm:px-5 sm:py-3.5 overflow-y-auto overscroll-contain flex flex-col justify-between" style={{ WebkitOverflowScrolling: 'touch' }}>
               <div>
-                <div className="text-center mb-3">
+                <div className="text-center mb-2.5">
                   <div
-                    className="w-9 h-9 rounded-xl mx-auto flex items-center justify-center text-white mb-1.5 shadow-lg"
+                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl mx-auto flex items-center justify-center text-white mb-1 shadow-md"
                     style={{ backgroundColor: settings.primaryColor }}
                   >
                     <Sparkles className="w-4 h-4" />
                   </div>
-                  <h4 className="text-base font-bold">Welcome, Recruiter!</h4>
-                  <p className={`text-[11px] mt-0.5 max-w-xs mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <h4 className="text-sm sm:text-base font-bold">Welcome, Recruiter!</h4>
+                  <p className={`text-[10px] sm:text-[11px] mt-0.5 max-w-xs mx-auto ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
                     Please share your details before asking questions so Ivan can review the interview Q&A and follow up.
                   </p>
                 </div>
 
                 {leadError && (
-                  <div className="mb-2.5 p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[11px] flex items-center gap-2">
-                    <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                  <div className="mb-2 p-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] flex items-center gap-1.5">
+                    <ShieldAlert className="w-3 h-3 shrink-0" />
                     <span>{leadError}</span>
                   </div>
                 )}
 
-                <form onSubmit={handleStartLead} className="space-y-2">
+                <form onSubmit={handleStartLead} className="space-y-1.5 sm:space-y-2">
                   <div>
                     <label className="block text-[10px] font-semibold mb-0.5 opacity-80 uppercase tracking-wider">
                       Your Name <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <UserIcon className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                      <UserIcon className="w-3.5 h-3.5 absolute left-3 top-2 text-slate-400" />
                       <input
                         type="text"
                         placeholder="e.g. Sarah Jenkins"
@@ -393,7 +393,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                       Company Name <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Building2 className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                      <Building2 className="w-3.5 h-3.5 absolute left-3 top-2 text-slate-400" />
                       <input
                         type="text"
                         placeholder="e.g. Figma, Stripe, Airbnb"
@@ -414,7 +414,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                       Work Email <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Mail className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                      <Mail className="w-3.5 h-3.5 absolute left-3 top-2 text-slate-400" />
                       <input
                         type="email"
                         placeholder="e.g. sarah@company.com"
@@ -449,7 +449,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
                   <button
                     type="submit"
-                    className="w-full mt-1.5 py-2.5 px-4 rounded-xl text-white font-semibold text-xs sm:text-xs transition shadow-md hover:brightness-110 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 min-h-[40px]"
+                    className="w-full mt-1.5 py-2 px-4 rounded-xl text-white font-semibold text-xs sm:text-xs transition shadow-md hover:brightness-110 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 min-h-[38px]"
                     style={{ backgroundColor: settings.primaryColor }}
                   >
                     <UserCheck className="w-3.5 h-3.5" />
@@ -458,10 +458,10 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                 </form>
               </div>
 
-              <div className="mt-2.5 pt-2 border-t border-slate-800/80 text-center pb-0.5">
+              <div className="mt-2 pt-1.5 border-t border-slate-800/80 text-center pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                 <button
                   onClick={() => setCurrentView('admin')}
-                  className="text-[10px] text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  className="text-[10px] text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer py-1"
                 >
                   <Lock className="w-2.5 h-2.5" />
                   <span>Are you Ivan Zhao? Sign in to Admin Dashboard</span>
@@ -557,7 +557,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
               {/* Input Area */}
               <form
                 onSubmit={handleSend}
-                className={`p-3 border-t flex items-center gap-2 ${
+                className={`p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t flex items-center gap-2 ${
                   isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                 }`}
               >
