@@ -21,6 +21,15 @@ interface ChatbotWidgetProps {
 }
 
 export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = false }) => {
+  const isUrlStandalone =
+    typeof window !== 'undefined' &&
+    (window.location.search.includes('mode=widget') ||
+      window.location.search.includes('embed=true') ||
+      window.location.search.includes('open=true') ||
+      window.location.pathname.startsWith('/widget'));
+
+  const isActuallyStandalone = isStandalone || isUrlStandalone;
+
   const {
     settings,
     isWidgetOpen,
@@ -49,7 +58,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
   // Notify parent window (Webflow / Embed host) of open/close state for auto-resizing
   useEffect(() => {
-    if (typeof window !== 'undefined' && !isStandalone) {
+    if (typeof window !== 'undefined' && !isActuallyStandalone) {
       try {
         window.parent?.postMessage(
           {
@@ -60,7 +69,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
         );
       } catch (e) {}
     }
-  }, [isWidgetOpen, isStandalone]);
+  }, [isWidgetOpen, isActuallyStandalone]);
 
   // Auto-scroll on new message
   useEffect(() => {
@@ -157,13 +166,13 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
     return parts.length > 0 ? parts : content;
   };
 
-  const effectiveIsOpen = isStandalone ? true : isWidgetOpen;
+  const effectiveIsOpen = isActuallyStandalone ? true : isWidgetOpen;
 
-  const containerClasses = isStandalone
+  const containerClasses = isActuallyStandalone
     ? 'w-full h-full min-h-0 flex flex-col m-0 p-0 overflow-hidden'
     : `fixed bottom-5 sm:bottom-8 ${positionClass} z-50`;
 
-  const windowClasses = isStandalone
+  const windowClasses = isActuallyStandalone
     ? `flex flex-col w-full h-full min-h-0 flex-1 overflow-hidden ${
         isDarkMode
           ? 'bg-slate-950 text-slate-100'
@@ -304,7 +313,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                     window.parent?.postMessage({ type: 'CYBER_IVAN_CLOSE' }, '*');
                     window.parent?.postMessage('close-widget', '*');
                   } catch (e) {}
-                  if (!isStandalone) {
+                  if (!isActuallyStandalone) {
                     setIsWidgetOpen(false);
                   }
                 }}
