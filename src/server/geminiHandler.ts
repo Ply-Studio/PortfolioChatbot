@@ -119,7 +119,7 @@ RESPONSE GUIDELINES:
   }
 
   let responseText = '';
-  const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  const candidateModels = ['gemini-3.8-flash', 'gemini-3.1-flash-lite'];
   let lastError: any = null;
 
   for (const model of candidateModels) {
@@ -198,7 +198,7 @@ Return ONLY a valid JSON object matching this exact structure:
   };
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3.7-flash',
+    model: 'gemini-3.8-flash',
     contents: {
       parts: [pdfPart, promptPart],
     },
