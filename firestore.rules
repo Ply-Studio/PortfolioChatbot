@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isIvanAdmin() {
+      return request.auth != null && (
+        request.auth.token.email.lower() == 'ivan.zhao@ivanzhao.design' ||
+        request.auth.token.email.lower() == 'ivan.zhao.gd@gmail.com'
+      );
+    }
+
+    // Widget settings configuration
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isIvanAdmin();
+    }
+
+    // Resume knowledge base
+    match /knowledge/{docId} {
+      allow read: if true;
+      allow write: if isIvanAdmin();
+    }
+
+    // Portfolio projects
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isIvanAdmin() && isValidId(projectId);
+    }
+
+    // Recruiter conversations & transcripts
+    match /conversations/{conversationId} {
+      // Only Ivan admin can list/query all recruiter leads and chat transcripts
+      allow list: if isIvanAdmin();
+
+      // Anyone with the conversationId can fetch their own active chat session
+      allow get: if true;
+
+      // Unauthenticated recruiters can create a conversation after submitting their contact info
+      allow create: if isValidId(conversationId) &&
+        request.resource.data.recruiterName is string &&
+        request.resource.data.recruiterName.size() > 0 &&
+        request.resource.data.recruiterName.size() <= 100 &&
+        request.resource.data.recruiterEmail is string &&
+        request.resource.data.recruiterEmail.size() > 0 &&
+        request.resource.data.recruiterEmail.size() <= 150 &&
+        request.resource.data.recruiterCompany is string &&
+        request.resource.data.recruiterCompany.size() > 0 &&
+        request.resource.data.recruiterCompany.size() <= 150;
+
+      // Allow appending messages to an ongoing conversation or admin updating status/notes
+      allow update: if isIvanAdmin() || (
+        request.resource.data.recruiterEmail == resource.data.recruiterEmail &&
+        request.resource.data.recruiterName == resource.data.recruiterName
+      );
+
+      // Deletion restricted to Admin
+      allow delete: if isIvanAdmin();
+    }
+  }
+}

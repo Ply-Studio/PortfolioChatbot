@@ -1,0 +1,89 @@
+{
+  "entities": {
+    "WidgetSettings": {
+      "title": "WidgetSettings",
+      "description": "Visual and content customizations for the cyber portfolio chatbot widget",
+      "type": "object",
+      "properties": {
+        "chatbotName": { "type": "string", "maxLength": 100 },
+        "chatbotTitle": { "type": "string", "maxLength": 150 },
+        "greetingMessage": { "type": "string", "maxLength": 1000 },
+        "themeMode": { "type": "string", "enum": ["light", "dark", "system"] },
+        "primaryColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "fontFamily": { "type": "string", "maxLength": 50 },
+        "borderRadius": { "type": "string", "maxLength": 30 },
+        "chatBubblePosition": { "type": "string", "enum": ["bottom-right", "bottom-left"] },
+        "quickQuestions": { "type": "array" },
+        "portfolioUrl": { "type": "string", "maxLength": 300 },
+        "allowedAdminEmails": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["chatbotName", "chatbotTitle", "greetingMessage", "primaryColor", "fontFamily"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Selected portfolio project link and details used by the chatbot for interview answers",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 200 },
+        "url": { "type": "string", "maxLength": 500 },
+        "role": { "type": "string", "maxLength": 100 },
+        "year": { "type": "string", "maxLength": 20 },
+        "tags": { "type": "array" },
+        "description": { "type": "string", "maxLength": 2000 },
+        "highlights": { "type": "string", "maxLength": 3000 },
+        "isFeatured": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "url", "description"]
+    },
+    "ResumeKnowledge": {
+      "title": "ResumeKnowledge",
+      "description": "Uploaded resume data, background info, and design skills used by the cyber chatbot",
+      "type": "object",
+      "properties": {
+        "resumeText": { "type": "string", "maxLength": 50000 },
+        "uploadedFileName": { "type": "string", "maxLength": 200 },
+        "summary": { "type": "string", "maxLength": 2000 },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["resumeText"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Full conversation transcripts and lead information between recruiters and the chatbot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "recruiterName": { "type": "string", "maxLength": 100 },
+        "recruiterEmail": { "type": "string", "maxLength": 150 },
+        "recruiterCompany": { "type": "string", "maxLength": 150 },
+        "recruiterRole": { "type": "string", "maxLength": 100 },
+        "messages": { "type": "array" },
+        "startedAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "notes": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["new", "reviewed", "contacted", "archived"] }
+      },
+      "required": ["recruiterName", "recruiterEmail", "recruiterCompany", "messages", "startedAt"]
+    }
+  },
+  "firestore": {
+    "/settings/widget": {
+      "schema": "WidgetSettings",
+      "description": "Configuration document for widget appearance and copy"
+    },
+    "/knowledge/resume": {
+      "schema": "ResumeKnowledge",
+      "description": "Uploaded resume text and background knowledge for the chatbot"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Portfolio projects and case study interview data"
+    },
+    "/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "Recruiter lead details and chat transcripts"
+    }
+  }
+}

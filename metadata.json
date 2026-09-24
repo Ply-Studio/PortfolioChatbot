@@ -1,0 +1,6 @@
+{
+  "name": "Ivan Zhao Cyber Portfolio AI Widget",
+  "description": "An interactive cyber portfolio AI chatbot widget for ivanzhao.design with recruiter lead capture, live customization, resume and project knowledge base, and recruiter conversation review dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
