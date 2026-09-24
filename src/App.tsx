@@ -23,14 +23,24 @@ const AppContent: React.FC = () => {
     if (isWidgetOnly) {
       document.documentElement.style.background = 'transparent';
       document.documentElement.style.backgroundColor = 'transparent';
+      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.height = '100%';
+      document.documentElement.style.width = '100%';
+      document.documentElement.style.margin = '0';
+      document.documentElement.style.padding = '0';
       document.body.style.background = 'transparent';
       document.body.style.backgroundColor = 'transparent';
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100%';
+      document.body.style.width = '100%';
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
     }
   }, [isWidgetOnly]);
 
   if (isWidgetOnly) {
     return (
-      <div className="w-full h-full min-h-screen bg-transparent flex items-end justify-end p-2 sm:p-4 pointer-events-none">
+      <div className="w-full h-full h-screen overflow-hidden bg-transparent flex items-center justify-center p-0 m-0">
         <ChatbotWidget isStandalone={true} />
       </div>
     );

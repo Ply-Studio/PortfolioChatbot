@@ -158,15 +158,15 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
   };
 
   const containerClasses = isStandalone
-    ? 'w-full h-full flex flex-col justify-end items-end'
+    ? 'w-full h-full flex flex-col items-center justify-center m-0 p-0 overflow-hidden'
     : `fixed bottom-5 sm:bottom-8 ${positionClass} z-50`;
 
   const windowClasses = isStandalone
-    ? `flex flex-col w-full h-full shadow-2xl overflow-hidden transition-all duration-300 border ${
+    ? `flex flex-col w-full h-full overflow-hidden ${
         isDarkMode
-          ? 'bg-slate-950 text-slate-100 border-slate-800/90'
-          : 'bg-white text-slate-900 border-slate-200'
-      } rounded-2xl`
+          ? 'bg-slate-950 text-slate-100'
+          : 'bg-white text-slate-900'
+      }`
     : `flex flex-col w-[92vw] sm:w-[410px] h-[600px] max-h-[85vh] shadow-2xl overflow-hidden transition-all duration-300 border ${
         isDarkMode
           ? 'bg-slate-950 text-slate-100 border-slate-800/90'
