@@ -47,6 +47,21 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Notify parent window (Webflow / Embed host) of open/close state for auto-resizing
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        window.parent?.postMessage(
+          {
+            type: 'CYBER_IVAN_STATE',
+            isOpen: isWidgetOpen,
+          },
+          '*'
+        );
+      } catch (e) {}
+    }
+  }, [isWidgetOpen]);
+
   // Auto-scroll on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

@@ -19,9 +19,18 @@ const AppContent: React.FC = () => {
     }
   }, [setIsWidgetOpen]);
 
+  React.useEffect(() => {
+    if (isWidgetOnly) {
+      document.documentElement.style.background = 'transparent';
+      document.documentElement.style.backgroundColor = 'transparent';
+      document.body.style.background = 'transparent';
+      document.body.style.backgroundColor = 'transparent';
+    }
+  }, [isWidgetOnly]);
+
   if (isWidgetOnly) {
     return (
-      <div className="min-h-screen bg-transparent flex items-end justify-end p-2 sm:p-4">
+      <div className="w-full h-full min-h-screen bg-transparent flex items-end justify-end p-2 sm:p-4 pointer-events-none">
         <ChatbotWidget isStandalone={true} />
       </div>
     );
