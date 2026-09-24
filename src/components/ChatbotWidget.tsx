@@ -377,7 +377,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
-                        className={`w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border focus:outline-none transition ${
+                        className={`w-full pl-8 pr-3 py-1.5 text-base sm:text-xs rounded-xl border focus:outline-none transition ${
                           isDarkMode
                             ? 'bg-slate-900 border-slate-700 focus:border-indigo-500 text-white'
                             : 'bg-slate-50 border-slate-300 focus:border-indigo-600 text-slate-900'
@@ -398,7 +398,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                         value={company}
                         onChange={(e) => setCompany(e.target.value)}
                         required
-                        className={`w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border focus:outline-none transition ${
+                        className={`w-full pl-8 pr-3 py-1.5 text-base sm:text-xs rounded-xl border focus:outline-none transition ${
                           isDarkMode
                             ? 'bg-slate-900 border-slate-700 focus:border-indigo-500 text-white'
                             : 'bg-slate-50 border-slate-300 focus:border-indigo-600 text-slate-900'
@@ -419,7 +419,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className={`w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border focus:outline-none transition ${
+                        className={`w-full pl-8 pr-3 py-1.5 text-base sm:text-xs rounded-xl border focus:outline-none transition ${
                           isDarkMode
                             ? 'bg-slate-900 border-slate-700 focus:border-indigo-500 text-white'
                             : 'bg-slate-50 border-slate-300 focus:border-indigo-600 text-slate-900'
@@ -437,7 +437,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                       placeholder="e.g. Design Talent Lead, Head of Design"
                       value={role}
                       onChange={(e) => setRole(e.target.value)}
-                      className={`w-full px-3 py-1.5 text-xs rounded-xl border focus:outline-none transition ${
+                      className={`w-full px-3 py-1.5 text-base sm:text-xs rounded-xl border focus:outline-none transition ${
                         isDarkMode
                           ? 'bg-slate-900 border-slate-700 focus:border-indigo-500 text-white'
                           : 'bg-slate-50 border-slate-300 focus:border-indigo-600 text-slate-900'
@@ -447,7 +447,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
                   <button
                     type="submit"
-                    className="w-full mt-1.5 py-2 px-4 rounded-xl text-white font-semibold text-xs transition shadow-md hover:brightness-110 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full mt-1.5 py-2.5 px-4 rounded-xl text-white font-semibold text-xs sm:text-xs transition shadow-md hover:brightness-110 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 min-h-[40px]"
                     style={{ backgroundColor: settings.primaryColor }}
                   >
                     <UserCheck className="w-3.5 h-3.5" />
@@ -565,7 +565,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   disabled={isSendingMessage}
-                  className={`flex-1 px-3 py-2 text-xs rounded-xl border focus:outline-none transition ${
+                  className={`flex-1 px-3.5 py-2 text-base sm:text-xs rounded-xl border focus:outline-none transition ${
                     isDarkMode
                       ? 'bg-slate-950 border-slate-700 focus:border-indigo-500 text-white'
                       : 'bg-slate-50 border-slate-300 focus:border-indigo-600 text-slate-900'

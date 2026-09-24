@@ -318,21 +318,128 @@ export const AdminDashboard: React.FC = () => {
 
   const webflowScriptSnippet = `<!-- Cyber Ivan Portfolio AI Chatbot - Webflow 1-Line Embed -->
 <script
-  src="https://ais-pre-5efmozibtofp33aeltzawf-486643578424.us-west2.run.app/widget.js"
+  src="https://portfoliochatbot-five.vercel.app/widget.js"
   async>
 </script>`;
 
-  const webflowEmbedSnippet = `<!-- Cyber Ivan Portfolio AI Chatbot - Webflow Bottom-Right iFrame -->
-<div id="cyber-ivan-widget-container" style="position: fixed; bottom: 24px; right: 24px; z-index: 999999;">
+  const webflowEmbedSnippet = `<!-- Cyber Ivan Portfolio AI - Fully Responsive Webflow Embed -->
+<style>
+  #cyber-ivan-launcher-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: #4f46e5;
+    color: #ffffff;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 12px 28px -4px rgba(79, 70, 229, 0.5), 0 6px 14px rgba(0, 0, 0, 0.4);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+    user-select: none;
+  }
+  #cyber-ivan-launcher-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 18px 36px -4px rgba(79, 70, 229, 0.65), 0 8px 18px rgba(0, 0, 0, 0.5);
+  }
+  #cyber-ivan-chat-popup {
+    position: fixed;
+    bottom: 86px;
+    right: 24px;
+    z-index: 999999;
+    display: none;
+    width: 410px;
+    height: 640px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 100px);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 0 40px rgba(79, 70, 229, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #07090e;
+    animation: ciFadeIn 0.22s ease-out;
+  }
+  @keyframes ciFadeIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  #cyber-ivan-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    background: transparent;
+    overflow: hidden;
+  }
+  /* Mobile Responsive Screen Adjustments */
+  @media (max-width: 640px) {
+    #cyber-ivan-chat-popup {
+      bottom: 0 !important;
+      right: 0 !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100vw !important;
+      height: 100% !important;
+      max-width: 100vw !important;
+      max-height: 100dvh !important;
+      border-radius: 0 !important;
+      border: none !important;
+    }
+    #cyber-ivan-launcher-btn {
+      bottom: 16px !important;
+      right: 16px !important;
+      padding: 10px 16px !important;
+    }
+  }
+</style>
+
+<button id="cyber-ivan-launcher-btn" onclick="toggleCyberIvanPopup()">
+  <div style="position:relative;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;">
+    IZ
+    <span style="position:absolute;bottom:0;right:0;width:8px;height:8px;background:#34d399;border:1.5px solid #0f172a;border-radius:50%;"></span>
+  </div>
+  <div style="display:flex;flex-direction:column;text-align:left;line-height:1.2;">
+    <span style="font-size:13px;font-weight:700;">Interview Me</span>
+    <span style="font-size:10px;font-weight:500;opacity:0.85;">Cyber Version</span>
+  </div>
+  <svg style="width:18px;height:18px;margin-left:2px;fill:currentColor;" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+</button>
+
+<div id="cyber-ivan-chat-popup">
   <iframe
-    id="cyber-ivan-chatbot"
-    src="https://ais-pre-5efmozibtofp33aeltzawf-486643578424.us-west2.run.app/?mode=widget"
-    style="width: 420px; height: 640px; max-width: calc(100vw - 32px); max-height: calc(100vh - 48px); border: none; border-radius: 24px; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5); display: block;"
+    id="cyber-ivan-iframe"
+    src="https://portfoliochatbot-five.vercel.app/?mode=widget&open=true"
     allow="clipboard-write"
-    loading="lazy"
-    title="Cyber Ivan Portfolio AI">
+    scrolling="no"
+    title="Cyber Ivan AI Chatbot">
   </iframe>
-</div>`;
+</div>
+
+<script>
+  function toggleCyberIvanPopup() {
+    var popup = document.getElementById('cyber-ivan-chat-popup');
+    if (!popup) return;
+    if (popup.style.display === 'block') {
+      popup.style.display = 'none';
+    } else {
+      popup.style.display = 'block';
+    }
+  }
+
+  window.addEventListener('message', function(event) {
+    if (event.data && (event.data.type === 'CYBER_IVAN_CLOSE' || event.data === 'close-widget' || (event.data.type === 'CYBER_IVAN_STATE' && event.data.isOpen === false))) {
+      var popup = document.getElementById('cyber-ivan-chat-popup');
+      if (popup) popup.style.display = 'none';
+    }
+  });
+</script>`;
 
   const embedCodeSnippet = webflowScriptSnippet;
 
