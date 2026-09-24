@@ -66,12 +66,25 @@
   }
 
   button.onclick = function() {
-    if (isOpen) {
-      closeWidget();
-    } else {
+    openWidget();
+  };
+
+  // Expose global methods for any custom button on Webflow to trigger
+  window.cyberIvanOpen = openWidget;
+  window.cyberIvanClose = closeWidget;
+  window.cyberIvanToggle = function() {
+    if (isOpen) closeWidget();
+    else openWidget();
+  };
+
+  // Support any link or button on Webflow with href="#interview-me" or data-cyber-ivan-open
+  document.addEventListener('click', function(e) {
+    var target = e.target && e.target.closest ? e.target.closest('[data-cyber-ivan-open], [href="#interview-me"], [href="#cyber-ivan"], .open-cyber-ivan') : null;
+    if (target) {
+      e.preventDefault();
       openWidget();
     }
-  };
+  });
 
   // Listen for close events from inside the chatbot iframe
   window.addEventListener('message', function(event) {
