@@ -49,7 +49,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
   // Notify parent window (Webflow / Embed host) of open/close state for auto-resizing
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && !isStandalone) {
       try {
         window.parent?.postMessage(
           {
@@ -60,7 +60,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
         );
       } catch (e) {}
     }
-  }, [isWidgetOpen]);
+  }, [isWidgetOpen, isStandalone]);
 
   // Auto-scroll on new message
   useEffect(() => {
