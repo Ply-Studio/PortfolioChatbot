@@ -9,8 +9,10 @@ const AppContent: React.FC = () => {
   const { currentView, notification, setNotification, setIsWidgetOpen } = useApp();
 
   const isWidgetOnly = typeof window !== 'undefined' && (
+    window.self !== window.top ||
     window.location.search.includes('mode=widget') ||
-    window.location.search.includes('embed=true')
+    window.location.search.includes('embed=true') ||
+    window.location.pathname.startsWith('/widget')
   );
 
   React.useEffect(() => {
