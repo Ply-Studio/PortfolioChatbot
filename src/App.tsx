@@ -10,8 +10,7 @@ const AppContent: React.FC = () => {
 
   const isWidgetOnly = typeof window !== 'undefined' && (
     window.location.search.includes('mode=widget') ||
-    window.location.search.includes('embed=true') ||
-    window.location.pathname.startsWith('/widget')
+    window.location.search.includes('embed=true')
   );
 
   React.useEffect(() => {
@@ -21,7 +20,7 @@ const AppContent: React.FC = () => {
   }, [setIsWidgetOpen]);
 
   React.useEffect(() => {
-    if (isWidgetOnly && currentView !== 'admin') {
+    if (isWidgetOnly) {
       document.documentElement.style.background = 'transparent';
       document.documentElement.style.backgroundColor = 'transparent';
       document.documentElement.style.overflow = 'hidden';
@@ -36,43 +35,12 @@ const AppContent: React.FC = () => {
       document.body.style.width = '100%';
       document.body.style.margin = '0';
       document.body.style.padding = '0';
-    } else {
-      document.documentElement.style.background = '';
-      document.documentElement.style.backgroundColor = '';
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.height = '';
-      document.documentElement.style.width = '';
-      document.body.style.background = '';
-      document.body.style.backgroundColor = '';
-      document.body.style.overflow = '';
-      document.body.style.height = '';
-      document.body.style.width = '';
     }
-  }, [isWidgetOnly, currentView]);
-
-  if (currentView === 'admin') {
-    return (
-      <div className="relative min-h-screen bg-[#07090e]">
-        {notification && (
-          <div className="fixed top-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-indigo-950/90 border border-indigo-500/40 text-indigo-100 text-xs shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-200">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>{notification}</span>
-            <button
-              onClick={() => setNotification(null)}
-              className="text-slate-400 hover:text-white p-0.5 ml-2 cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-        <AdminDashboard />
-      </div>
-    );
-  }
+  }, [isWidgetOnly]);
 
   if (isWidgetOnly) {
     return (
-      <div className="w-full h-full min-h-0 h-[100dvh] overflow-hidden bg-transparent flex flex-col p-0 m-0">
+      <div className="w-full h-full h-screen overflow-hidden bg-transparent flex items-center justify-center p-0 m-0">
         <ChatbotWidget isStandalone={true} />
       </div>
     );

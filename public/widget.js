@@ -31,10 +31,10 @@
     button.style.boxShadow = '0 12px 30px -4px rgba(79,70,229,0.5),0 4px 12px rgba(0,0,0,0.3)';
   };
 
-  // Create Iframe Container (Full window, hidden via opacity/visibility to prevent iOS WebKit compositor deallocation)
+  // Create Iframe Container (Full 640px window, hidden when collapsed)
   var iframeContainer = document.createElement('div');
   iframeContainer.id = 'cyber-ivan-iframe-box';
-  iframeContainer.style.cssText = 'position:fixed;bottom:86px;right:24px;z-index:9999999;width:410px;height:640px;max-width:calc(100vw - 32px);max-height:calc(100vh - 100px);border-radius:24px;overflow:hidden;box-shadow:0 24px 60px -12px rgba(0,0,0,0.75),0 0 40px rgba(79,70,229,0.2);border:1px solid rgba(255,255,255,0.12);background:#07090e;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(16px) scale(0.98);transition:opacity 0.22s ease-out, transform 0.22s ease-out, visibility 0.22s;';
+  iframeContainer.style.cssText = 'pointer-events:auto;display:none;width:420px;height:640px;max-width:calc(100vw - 32px);max-height:calc(100vh - 48px);border-radius:24px;overflow:hidden;box-shadow:0 24px 60px -12px rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.1);background:#07090e;margin-bottom:12px;animation:cyberIvanFadeIn 0.22s ease-out;';
 
   var iframe = document.createElement('iframe');
   iframe.src = appOrigin + '/?mode=widget&open=true';
@@ -45,60 +45,33 @@
   iframeContainer.appendChild(iframe);
 
   var isOpen = false;
-  function openWidget() {
-    isOpen = true;
-    iframeContainer.style.opacity = '1';
-    iframeContainer.style.visibility = 'visible';
-    iframeContainer.style.pointerEvents = 'auto';
-    iframeContainer.style.transform = 'translateY(0) scale(1)';
-    button.style.opacity = '0';
-    button.style.pointerEvents = 'none';
-  }
-
-  function closeWidget() {
-    isOpen = false;
-    iframeContainer.style.opacity = '0';
-    iframeContainer.style.visibility = 'hidden';
-    iframeContainer.style.pointerEvents = 'none';
-    iframeContainer.style.transform = 'translateY(16px) scale(0.98)';
-    button.style.opacity = '1';
-    button.style.pointerEvents = 'auto';
-  }
-
   button.onclick = function() {
-    openWidget();
-  };
-
-  // Expose global methods for any custom button on Webflow to trigger
-  window.cyberIvanOpen = openWidget;
-  window.cyberIvanClose = closeWidget;
-  window.cyberIvanToggle = function() {
-    if (isOpen) closeWidget();
-    else openWidget();
-  };
-
-  // Support any link or button on Webflow with href="#interview-me" or data-cyber-ivan-open
-  document.addEventListener('click', function(e) {
-    var target = e.target && e.target.closest ? e.target.closest('[data-cyber-ivan-open], [href="#interview-me"], [href="#cyber-ivan"], .open-cyber-ivan') : null;
-    if (target) {
-      e.preventDefault();
-      openWidget();
+    isOpen = !isOpen;
+    if (isOpen) {
+      iframeContainer.style.display = 'block';
+      button.style.display = 'none';
+    } else {
+      iframeContainer.style.display = 'none';
+      button.style.display = 'flex';
     }
-  });
+  };
 
   // Listen for close events from inside the chatbot iframe
   window.addEventListener('message', function(event) {
     if (event.data && (event.data.type === 'CYBER_IVAN_CLOSE' || event.data === 'close-widget' || (event.data.type === 'CYBER_IVAN_STATE' && event.data.isOpen === false))) {
-      closeWidget();
+      isOpen = false;
+      iframeContainer.style.display = 'none';
+      button.style.display = 'flex';
     }
   });
 
-  document.body.appendChild(iframeContainer);
+  root.appendChild(iframeContainer);
   root.appendChild(button);
-  document.body.appendChild(root);
 
-  // Responsive mobile media queries
-  var responsiveStyle = document.createElement('style');
-  responsiveStyle.textContent = '@media (max-width: 640px) { #cyber-ivan-iframe-box { bottom:0!important;right:0!important;left:0!important;top:0!important;width:100vw!important;height:100%!important;max-width:100vw!important;max-height:100dvh!important;border-radius:0!important;border:none!important;margin:0!important; } #cyber-ivan-launcher-btn { bottom:max(16px,env(safe-area-inset-bottom))!important;right:16px!important;padding:10px 16px!important; } }';
-  document.head.appendChild(responsiveStyle);
+  // Keyframe animations
+  var styleTag = document.createElement('style');
+  styleTag.textContent = '@keyframes cyberIvanFadeIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }';
+  document.head.appendChild(styleTag);
+
+  document.body.appendChild(root);
 })();

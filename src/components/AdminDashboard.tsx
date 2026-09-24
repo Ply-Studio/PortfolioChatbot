@@ -354,6 +354,7 @@ export const AdminDashboard: React.FC = () => {
     bottom: 86px;
     right: 24px;
     z-index: 999999;
+    display: none;
     width: 410px;
     height: 640px;
     max-width: calc(100vw - 32px);
@@ -363,21 +364,11 @@ export const AdminDashboard: React.FC = () => {
     box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 0 40px rgba(79, 70, 229, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: #07090e;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(16px) scale(0.98);
-    transition: opacity 0.22s ease-out, transform 0.22s ease-out, visibility 0.22s;
+    animation: ciFadeIn 0.22s ease-out;
   }
-  #cyber-ivan-chat-popup.is-open {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-  }
-  #cyber-ivan-launcher-btn.is-hidden {
-    opacity: 0;
-    pointer-events: none;
+  @keyframes ciFadeIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
   #cyber-ivan-iframe {
     width: 100%;
@@ -400,17 +391,16 @@ export const AdminDashboard: React.FC = () => {
       max-height: 100dvh !important;
       border-radius: 0 !important;
       border: none !important;
-      margin: 0 !important;
     }
     #cyber-ivan-launcher-btn {
-      bottom: max(16px, env(safe-area-inset-bottom)) !important;
+      bottom: 16px !important;
       right: 16px !important;
       padding: 10px 16px !important;
     }
   }
 </style>
 
-<button id="cyber-ivan-launcher-btn" onclick="openCyberIvan()">
+<button id="cyber-ivan-launcher-btn" onclick="toggleCyberIvanPopup()">
   <div style="position:relative;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;">
     IZ
     <span style="position:absolute;bottom:0;right:0;width:8px;height:8px;background:#34d399;border:1.5px solid #0f172a;border-radius:50%;"></span>
@@ -433,32 +423,20 @@ export const AdminDashboard: React.FC = () => {
 </div>
 
 <script>
-  function openCyberIvan() {
-    var popup = document.getElementById('cyber-ivan-chat-popup');
-    var btn = document.getElementById('cyber-ivan-launcher-btn');
-    if (popup) popup.classList.add('is-open');
-    if (btn) btn.classList.add('is-hidden');
-  }
-
-  function closeCyberIvan() {
-    var popup = document.getElementById('cyber-ivan-chat-popup');
-    var btn = document.getElementById('cyber-ivan-launcher-btn');
-    if (popup) popup.classList.remove('is-open');
-    if (btn) btn.classList.remove('is-hidden');
-  }
-
   function toggleCyberIvanPopup() {
     var popup = document.getElementById('cyber-ivan-chat-popup');
-    if (popup && popup.classList.contains('is-open')) {
-      closeCyberIvan();
+    if (!popup) return;
+    if (popup.style.display === 'block') {
+      popup.style.display = 'none';
     } else {
-      openCyberIvan();
+      popup.style.display = 'block';
     }
   }
 
   window.addEventListener('message', function(event) {
     if (event.data && (event.data.type === 'CYBER_IVAN_CLOSE' || event.data === 'close-widget' || (event.data.type === 'CYBER_IVAN_STATE' && event.data.isOpen === false))) {
-      closeCyberIvan();
+      var popup = document.getElementById('cyber-ivan-chat-popup');
+      if (popup) popup.style.display = 'none';
     }
   });
 </script>`;
