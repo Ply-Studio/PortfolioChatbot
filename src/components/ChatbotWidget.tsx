@@ -157,6 +157,8 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
     return parts.length > 0 ? parts : content;
   };
 
+  const effectiveIsOpen = isStandalone || isWidgetOpen;
+
   const containerClasses = isStandalone
     ? 'w-full h-full flex flex-col items-center justify-center m-0 p-0 overflow-hidden'
     : `fixed bottom-5 sm:bottom-8 ${positionClass} z-50`;
@@ -178,8 +180,8 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
       className={containerClasses}
       style={{ fontFamily: settings.fontFamily || 'Plus Jakarta Sans' }}
     >
-      {/* Floating launcher trigger */}
-      {!isWidgetOpen && (
+      {/* Floating launcher trigger (only when NOT in standalone mode and closed) */}
+      {!effectiveIsOpen && (
         <div className="relative group">
           {/* Tooltip */}
           <div className="absolute bottom-full right-0 mb-3 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-white text-xs whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
@@ -222,7 +224,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
       )}
 
       {/* Widget Window */}
-      {isWidgetOpen && (
+      {effectiveIsOpen && (
         <div
           className={windowClasses}
           style={{

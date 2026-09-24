@@ -76,7 +76,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   const [recruiterLead, setRecruiterLead] = useState<RecruiterLead | null>(null);
-  const [isWidgetOpen, setIsWidgetOpen] = useState(false);
+  const [isWidgetOpen, setIsWidgetOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        window.location.search.includes('mode=widget') ||
+        window.location.search.includes('embed=true') ||
+        window.location.search.includes('open=true')
+      );
+    }
+    return false;
+  });
   const [currentView, setCurrentView] = useState<'portfolio' | 'admin'>('portfolio');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
