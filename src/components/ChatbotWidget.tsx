@@ -21,7 +21,6 @@ interface ChatbotWidgetProps {
 }
 
 export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = false }) => {
-  const isInsideIframe = typeof window !== 'undefined' && window.self !== window.top;
   const isUrlStandalone =
     typeof window !== 'undefined' &&
     (window.location.search.includes('mode=widget') ||
@@ -29,7 +28,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
       window.location.search.includes('open=true') ||
       window.location.pathname.startsWith('/widget'));
 
-  const isActuallyStandalone = isStandalone || isInsideIframe || isUrlStandalone;
+  const isActuallyStandalone = isStandalone || isUrlStandalone;
 
   const {
     settings,
