@@ -157,14 +157,14 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
     return parts.length > 0 ? parts : content;
   };
 
-  const effectiveIsOpen = isStandalone || isWidgetOpen;
+  const effectiveIsOpen = isStandalone ? true : isWidgetOpen;
 
   const containerClasses = isStandalone
-    ? 'w-full h-full flex flex-col items-center justify-center m-0 p-0 overflow-hidden'
+    ? 'w-full h-full min-h-0 flex flex-col m-0 p-0 overflow-hidden'
     : `fixed bottom-5 sm:bottom-8 ${positionClass} z-50`;
 
   const windowClasses = isStandalone
-    ? `flex flex-col w-full h-full overflow-hidden ${
+    ? `flex flex-col w-full h-full min-h-0 flex-1 overflow-hidden ${
         isDarkMode
           ? 'bg-slate-950 text-slate-100'
           : 'bg-white text-slate-900'
@@ -300,10 +300,13 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
               <button
                 onClick={() => {
-                  setIsWidgetOpen(false);
                   try {
                     window.parent?.postMessage({ type: 'CYBER_IVAN_CLOSE' }, '*');
+                    window.parent?.postMessage('close-widget', '*');
                   } catch (e) {}
+                  if (!isStandalone) {
+                    setIsWidgetOpen(false);
+                  }
                 }}
                 className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white transition cursor-pointer"
                 aria-label="Close widget"
@@ -344,7 +347,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
           {/* Main Body: Either Lead Capture Form (Feature 6) OR Chat Conversation */}
           {!activeConversation ? (
-            <div className="flex-1 px-4 py-3 sm:px-5 sm:py-3.5 overflow-y-auto overscroll-contain flex flex-col justify-between" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex-1 min-h-0 px-4 py-3 sm:px-5 sm:py-3.5 overflow-y-auto overscroll-contain flex flex-col justify-between" style={{ WebkitOverflowScrolling: 'touch' }}>
               <div>
                 <div className="text-center mb-2.5">
                   <div

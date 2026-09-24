@@ -40,7 +40,7 @@ const AppContent: React.FC = () => {
 
   if (isWidgetOnly) {
     return (
-      <div className="w-full h-full h-screen overflow-hidden bg-transparent flex items-center justify-center p-0 m-0">
+      <div className="w-full h-full min-h-0 h-[100dvh] overflow-hidden bg-transparent flex flex-col p-0 m-0">
         <ChatbotWidget isStandalone={true} />
       </div>
     );
