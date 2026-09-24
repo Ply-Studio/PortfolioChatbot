@@ -425,11 +425,17 @@ export const AdminDashboard: React.FC = () => {
 <script>
   function toggleCyberIvanPopup() {
     var popup = document.getElementById('cyber-ivan-chat-popup');
+    var iframe = document.getElementById('cyber-ivan-iframe');
     if (!popup) return;
     if (popup.style.display === 'block') {
       popup.style.display = 'none';
     } else {
       popup.style.display = 'block';
+      try {
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({ type: 'CYBER_IVAN_OPEN' }, '*');
+        }
+      } catch (e) {}
     }
   }
 
@@ -446,37 +452,37 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl px-6 py-4 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-40 safe-top">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
             <button
               onClick={() => setCurrentView('portfolio')}
-              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition cursor-pointer"
+              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition cursor-pointer shrink-0"
               title="Return to Portfolio View"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-white text-base">Cyber Ivan Control Center</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold flex items-center gap-1">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <span className="font-bold text-white text-sm sm:text-base truncate">Cyber Ivan Control Center</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold flex items-center gap-1 shrink-0">
                   <ShieldCheck className="w-3 h-3" />
-                  <span>Admin Verified</span>
+                  <span>Admin</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] sm:text-xs text-slate-400 truncate">
                 Connected to <span className="text-indigo-400">ivanzhao.design</span> • {currentUser.email}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={() => {
                 setIsWidgetOpen(true);
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md shadow-indigo-600/30 flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-medium text-xs shadow-md shadow-indigo-600/30 flex items-center gap-1.5 transition cursor-pointer min-h-[36px]"
             >
               <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
               <span>Test Widget</span>
@@ -484,7 +490,7 @@ export const AdminDashboard: React.FC = () => {
 
             <button
               onClick={logout}
-              className="p-2 rounded-xl bg-slate-900 hover:bg-rose-950/40 hover:text-rose-400 border border-slate-800 text-slate-400 transition cursor-pointer"
+              className="p-2 rounded-xl bg-slate-900 hover:bg-rose-950/40 hover:text-rose-400 border border-slate-800 text-slate-400 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -494,8 +500,8 @@ export const AdminDashboard: React.FC = () => {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="border-b border-slate-800/80 bg-slate-950/40 px-6">
-        <div className="max-w-7xl mx-auto flex gap-2 overflow-x-auto py-2.5 no-scrollbar text-xs font-medium">
+      <div className="border-b border-slate-800/80 bg-slate-950/40 px-3 sm:px-6">
+        <div className="max-w-7xl mx-auto flex gap-1.5 sm:gap-2 overflow-x-auto py-2.5 no-scrollbar text-xs font-medium touch-pan-x">
           <button
             onClick={() => setActiveTab('visual')}
             className={`px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer ${
@@ -571,7 +577,7 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 safe-bottom">
         {/* TAB 1: VISUAL CUSTOMIZATION (Feature 1) */}
         {activeTab === 'visual' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

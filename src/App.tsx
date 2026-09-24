@@ -9,15 +9,30 @@ const AppContent: React.FC = () => {
   const { currentView, notification, setNotification, setIsWidgetOpen } = useApp();
 
   const isWidgetOnly = typeof window !== 'undefined' && (
+    window.self !== window.top ||
     window.location.search.includes('mode=widget') ||
     window.location.search.includes('embed=true')
   );
 
   React.useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.search.includes('open=true')) {
+    if (isWidgetOnly || (typeof window !== 'undefined' && window.location.search.includes('open=true'))) {
       setIsWidgetOpen(true);
     }
-  }, [setIsWidgetOpen]);
+
+    const handleMessage = (event: MessageEvent) => {
+      if (
+        event.data &&
+        (event.data.type === 'CYBER_IVAN_OPEN' ||
+          event.data === 'open-widget' ||
+          (event.data.type === 'CYBER_IVAN_STATE' && event.data.isOpen === true))
+      ) {
+        setIsWidgetOpen(true);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [isWidgetOnly, setIsWidgetOpen]);
 
   React.useEffect(() => {
     if (isWidgetOnly) {

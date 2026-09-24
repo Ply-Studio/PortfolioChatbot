@@ -46,6 +46,8 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
   // Message input state
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef(0);
 
   // Notify parent window (Webflow / Embed host) of open/close state for auto-resizing
   useEffect(() => {
@@ -62,10 +64,14 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
     }
   }, [isWidgetOpen]);
 
-  // Auto-scroll on new message
+  // Auto-scroll only when new message is added, not interrupting user scrolling
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation?.messages, isSendingMessage]);
+    const currentLength = activeConversation?.messages?.length || 0;
+    if (currentLength > prevMessagesLengthRef.current || isSendingMessage) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    prevMessagesLengthRef.current = currentLength;
+  }, [activeConversation?.messages?.length, isSendingMessage]);
 
   const handleStartLead = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -231,7 +237,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
         >
           {/* Header */}
           <div
-            className="px-4 py-3.5 flex items-center justify-between text-white relative overflow-hidden"
+            className="px-4 py-3.5 flex items-center justify-between text-white relative overflow-hidden shrink-0"
             style={{ backgroundColor: settings.primaryColor || '#6366f1' }}
           >
             <div className="flex items-center gap-3 z-10">
@@ -314,7 +320,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
           {/* Subheader banner showing recruiter info if present */}
           {recruiterLead && (
             <div
-              className={`px-3 py-1.5 text-[11px] flex items-center justify-between border-b ${
+              className={`px-3 py-1.5 text-[11px] flex items-center justify-between border-b shrink-0 ${
                 isDarkMode
                   ? 'bg-slate-900/90 text-slate-400 border-slate-800'
                   : 'bg-slate-100 text-slate-600 border-slate-200'
@@ -342,7 +348,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
           {/* Main Body: Either Lead Capture Form (Feature 6) OR Chat Conversation */}
           {!activeConversation ? (
-            <div className="flex-1 px-4 py-3 sm:px-5 sm:py-3.5 overflow-y-auto flex flex-col justify-between">
+            <div className="flex-1 px-4 py-3 sm:px-5 sm:py-3.5 overflow-y-auto flex flex-col justify-between min-h-0">
               <div>
                 <div className="text-center mb-3">
                   <div
@@ -456,7 +462,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                 </form>
               </div>
 
-              <div className="mt-2.5 pt-2 border-t border-slate-800/80 text-center pb-0.5">
+              <div className="mt-2.5 pt-2 border-t border-slate-800/80 text-center pb-0.5 shrink-0">
                 <button
                   onClick={() => setCurrentView('admin')}
                   className="text-[10px] text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
@@ -468,9 +474,12 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
             </div>
           ) : (
             /* Active Conversation View */
-            <div className="flex-1 flex flex-col h-full min-h-0">
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
               {/* Message List */}
-              <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs">
+              <div
+                ref={messagesContainerRef}
+                className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs min-h-0 overscroll-contain touch-pan-y"
+              >
                 {activeConversation.messages.map((msg) => {
                   const isUser = msg.sender === 'user';
                   return (
@@ -532,7 +541,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
               {/* Quick Questions Chips (Feature 3) */}
               {settings.quickQuestions && settings.quickQuestions.length > 0 && (
-                <div className={`p-2 border-t overflow-x-auto flex gap-1.5 no-scrollbar ${
+                <div className={`p-2 border-t overflow-x-auto flex gap-1.5 no-scrollbar shrink-0 ${
                   isDarkMode ? 'bg-slate-950/90 border-slate-800' : 'bg-slate-50 border-slate-200'
                 }`}>
                   {settings.quickQuestions.map((q, idx) => (
@@ -555,7 +564,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
               {/* Input Area */}
               <form
                 onSubmit={handleSend}
-                className={`p-3 border-t flex items-center gap-2 ${
+                className={`p-3 border-t flex items-center gap-2 shrink-0 ${
                   isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
                 }`}
               >
@@ -575,7 +584,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                 <button
                   type="submit"
                   disabled={!inputText.trim() || isSendingMessage}
-                  className="p-2 rounded-xl text-white font-medium transition disabled:opacity-40 cursor-pointer shadow-md"
+                  className="p-2 rounded-xl text-white font-medium transition disabled:opacity-40 cursor-pointer shadow-md shrink-0"
                   style={{ backgroundColor: settings.primaryColor }}
                   aria-label="Send message"
                 >

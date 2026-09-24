@@ -33,9 +33,9 @@ interface ChatRequestBody {
 }
 
 export async function handleGeminiChat(body: ChatRequestBody): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not configured in environment variables.');
+    throw new Error('GEMINI_API_KEY is not configured in Vercel environment variables.');
   }
 
   const ai = new GoogleGenAI({
@@ -118,23 +118,43 @@ RESPONSE GUIDELINES:
     }
   }
 
-  const response = await ai.models.generateContent({
-    model: 'gemini-3.7-flash',
-    contents: [
-      ...historyTurns,
-      {
-        role: 'user',
-        parts: [{ text: lastUserMsg }],
-      },
-    ],
-    config: {
-      systemInstruction,
-      temperature: 0.7,
-      topP: 0.95,
-    },
-  });
+  let responseText = '';
+  const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  let lastError: any = null;
 
-  return response.text || "Thank you for asking! I'd love to chat more about this. Feel free to explore my portfolio at https://www.ivanzhao.design/ or reach out directly at ivan.zhao@ivanzhao.design.";
+  for (const model of candidateModels) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: [
+          ...historyTurns,
+          {
+            role: 'user',
+            parts: [{ text: lastUserMsg }],
+          },
+        ],
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+          topP: 0.95,
+        },
+      });
+
+      if (response && response.text) {
+        responseText = response.text;
+        break;
+      }
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`Model ${model} failed, trying next candidate:`, err?.message || err);
+    }
+  }
+
+  if (!responseText && lastError) {
+    throw lastError;
+  }
+
+  return responseText || "Thank you for asking! I'd love to chat more about this. Feel free to explore my portfolio at https://www.ivanzhao.design/ or reach out directly at ivan.zhao@ivanzhao.design.";
 }
 
 export async function handleParseResumePdf(pdfBase64: string, fileName?: string): Promise<{ resumeText: string; summary: string }> {

@@ -405,7 +405,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } else {
         const errorData = await response.json().catch(() => ({}));
         replyText = errorData.error
-          ? `(AI Twin Note: ${errorData.error}. As Cyber Ivan, I can share that Ivan has extensive experience in product design, design systems, and AI workflows. Please reach out to ivan.zhao@ivanzhao.design!)`
+          ? `(AI Twin Service Notice: ${errorData.error} — As Ivan Zhao's cyber twin, please reach out directly at ivan.zhao@ivanzhao.design while the Gemini connection is verified.)`
           : "Thank you for reaching out! I'd love to discuss my design process and project experience in detail. Please feel free to email me directly at ivan.zhao@ivanzhao.design.";
       }
 
