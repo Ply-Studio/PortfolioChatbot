@@ -21,6 +21,7 @@ export const PortfolioWebsite: React.FC = () => {
     resume,
     settings,
     setIsWidgetOpen,
+    setCurrentView,
   } = useApp();
 
   return (
