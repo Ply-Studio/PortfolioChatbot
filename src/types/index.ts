@@ -13,6 +13,7 @@ export interface WidgetSettings {
   portfolioUrl: string;
   allowedAdminEmails: string[];
   avatarUrl?: string;
+  geminiApiKey?: string;
   updatedAt?: string;
 }
 

@@ -195,15 +195,11 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
 
           <button
             onClick={() => setIsWidgetOpen(true)}
-            className="flex items-center gap-3 px-4 py-3.5 rounded-full text-white shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
-            style={{
-              backgroundColor: settings.primaryColor || '#6366f1',
-              boxShadow: `0 10px 25px -5px ${settings.primaryColor || '#6366f1'}66`,
-            }}
+            className="flex items-center gap-3 px-5 py-3 rounded-full text-white shadow-2xl hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer bg-[#0e131f] border border-slate-700/60 shadow-[0_12px_32px_rgba(0,0,0,0.6)]"
             aria-label="Open portfolio chatbot"
           >
             <div className="relative flex items-center justify-center">
-              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs text-white overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-[#6366f1] flex items-center justify-center font-bold text-xs text-white overflow-hidden shadow-inner">
                 {settings.avatarUrl ? (
                   <img
                     src={settings.avatarUrl}
@@ -214,15 +210,15 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                   'IZ'
                 )}
               </div>
-              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-slate-900 rounded-full" />
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#0e131f] rounded-full" />
             </div>
 
-            <div className="hidden sm:flex flex-col text-left pr-1">
-              <span className="text-xs font-bold leading-tight">Interview Me</span>
-              <span className="text-[10px] text-white/80 leading-tight">Cyber Version</span>
+            <div className="flex flex-col text-left pr-1">
+              <span className="text-sm font-bold leading-tight text-white tracking-tight">Interview Me</span>
+              <span className="text-[11px] text-slate-400 font-medium leading-tight">Cyber Version</span>
             </div>
 
-            <MessageSquare className="w-5 h-5 text-white ml-0.5" />
+            <MessageSquare className="w-5 h-5 text-white/90 ml-1.5 stroke-[2.2]" />
           </button>
         </div>
       )}
@@ -272,7 +268,7 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
             </div>
 
             <div className="flex items-center gap-1.5 z-10">
-              {/* Option to End Conversation if in active chat */}
+              {/* Reset/End Chat button */}
               {activeConversation && (
                 <button
                   onClick={() => {
@@ -281,27 +277,25 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                     }
                   }}
                   title="End Conversation & Reset Chat"
-                  className="px-2 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 hover:text-white text-xs transition cursor-pointer flex items-center justify-center"
                 >
-                  <RotateCcw className="w-3 h-3" />
-                  <span className="hidden sm:inline">End Chat</span>
+                  <RotateCcw className="w-3.5 h-3.5" />
                 </button>
               )}
 
-              {/* Feature 7: Admin Sign-In directly through widget header */}
+              {/* Admin Access: Discrete lock icon in chatbot header */}
               <button
                 onClick={() => {
                   setCurrentView('admin');
                 }}
-                title={isAdmin ? 'Admin Dashboard' : 'Sign in as Ivan Zhao (Admin)'}
-                className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs transition cursor-pointer flex items-center gap-1"
+                title={isAdmin ? 'Admin Dashboard (Ivan Zhao)' : 'Admin Portal Access'}
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 hover:text-white transition cursor-pointer flex items-center justify-center"
+                aria-label="Admin Login"
               >
                 <Lock className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline text-[11px] font-medium">
-                  {isAdmin ? 'Admin' : 'Login'}
-                </span>
               </button>
 
+              {/* Close Button: Always available so visitor or embedded user can close/minimize the chat */}
               <button
                 onClick={() => {
                   setIsWidgetOpen(false);
@@ -309,8 +303,9 @@ export const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ isStandalone = fal
                     window.parent?.postMessage({ type: 'CYBER_IVAN_CLOSE' }, '*');
                   } catch (e) {}
                 }}
-                className="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white transition cursor-pointer"
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer flex items-center justify-center"
                 aria-label="Close widget"
+                title="Close Chat"
               >
                 <X className="w-4 h-4" />
               </button>

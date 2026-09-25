@@ -31,6 +31,8 @@ import {
   DEFAULT_PROJECTS,
 } from '../types';
 
+import { callDirectGemini } from '../utils/directGemini';
+
 interface AppContextType {
   currentUser: User | null;
   isAdmin: boolean;
@@ -378,35 +380,70 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsSendingMessage(true);
 
     try {
-      // Call server-side Gemini API endpoint
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: updatedMessages,
-          resumeText: resume.resumeText,
-          projects,
-          chatbotName: settings.chatbotName,
-          chatbotTitle: settings.chatbotTitle,
-          portfolioUrl: settings.portfolioUrl,
-          recruiterInfo: recruiterLead || {
-            name: currentConv.recruiterName,
-            email: currentConv.recruiterEmail,
-            company: currentConv.recruiterCompany,
-            role: currentConv.recruiterRole,
-          },
-        }),
-      });
-
       let replyText = '';
-      if (response.ok) {
-        const data = await response.json();
-        replyText = data.reply || "Thanks for your question! I'm happy to provide more details about Ivan's work.";
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        replyText = errorData.error
-          ? `(AI Twin Service Notice: ${errorData.error} — As Ivan Zhao's cyber twin, please reach out directly at ivan.zhao@ivanzhao.design while the Gemini connection is verified.)`
-          : "Thank you for reaching out! I'd love to discuss my design process and project experience in detail. Please feel free to email me directly at ivan.zhao@ivanzhao.design.";
+      let apiSuccess = false;
+
+      // 1. Try server-side Gemini endpoint
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: updatedMessages,
+            resumeText: resume.resumeText,
+            projects,
+            chatbotName: settings.chatbotName,
+            chatbotTitle: settings.chatbotTitle,
+            portfolioUrl: settings.portfolioUrl,
+            apiKey: settings.geminiApiKey,
+            recruiterInfo: recruiterLead || {
+              name: currentConv.recruiterName,
+              email: currentConv.recruiterEmail,
+              company: currentConv.recruiterCompany,
+              role: currentConv.recruiterRole,
+            },
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.reply) {
+            replyText = data.reply;
+            apiSuccess = true;
+          }
+        }
+      } catch (networkErr) {
+        console.warn('Backend /api/chat unreachable, trying direct Gemini client fallback...', networkErr);
+      }
+
+      // 2. If backend endpoint did not succeed and we have an API key in settings or env, try direct Gemini call
+      const fallbackKey = settings.geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+      if (!apiSuccess && fallbackKey) {
+        try {
+          replyText = await callDirectGemini({
+            apiKey: fallbackKey,
+            messages: updatedMessages,
+            resumeText: resume.resumeText,
+            projects,
+            chatbotName: settings.chatbotName,
+            chatbotTitle: settings.chatbotTitle,
+            portfolioUrl: settings.portfolioUrl,
+            recruiterInfo: recruiterLead || {
+              name: currentConv.recruiterName,
+              email: currentConv.recruiterEmail,
+              company: currentConv.recruiterCompany,
+              role: currentConv.recruiterRole,
+            },
+          });
+          apiSuccess = true;
+        } catch (directErr) {
+          console.warn('Direct Gemini call failed:', directErr);
+        }
+      }
+
+      // 3. Fallback message if both failed
+      if (!replyText) {
+        replyText = "Thank you for reaching out! I'd love to discuss my design process and project experience in detail. Please feel free to email me directly at ivan.zhao@ivanzhao.design.";
       }
 
       const botMessage: Message = {

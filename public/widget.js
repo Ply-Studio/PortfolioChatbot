@@ -2,7 +2,7 @@
   if (document.getElementById('cyber-ivan-widget-root')) return;
 
   var currentScript = document.currentScript;
-  var appOrigin = 'https://portfoliochatbot-five.vercel.app';
+  var appOrigin = 'https://ivan-zhao-cyber-portfolio-ai-widget.ai.studio';
   if (currentScript && currentScript.src) {
     try {
       var scriptUrl = new URL(currentScript.src);
@@ -29,14 +29,14 @@
       pointer-events: auto;
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 20px;
-      background: #4f46e5;
+      gap: 14px;
+      padding: 10px 22px 10px 14px;
+      background: #0e131f;
       color: #ffffff;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 9999px;
       cursor: pointer;
-      box-shadow: 0 12px 30px -4px rgba(79,70,229,0.5), 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.7), 0 0 20px rgba(99, 102, 241, 0.15);
       font-size: 13px;
       font-weight: 700;
       transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
@@ -46,7 +46,8 @@
     }
     #cyber-ivan-launcher-btn:hover {
       transform: scale(1.04);
-      box-shadow: 0 16px 36px -4px rgba(79,70,229,0.65), 0 6px 16px rgba(0,0,0,0.4);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 20px 42px -6px rgba(0, 0, 0, 0.8), 0 0 25px rgba(99, 102, 241, 0.3);
     }
     #cyber-ivan-launcher-btn:active {
       transform: scale(0.97);
@@ -60,7 +61,7 @@
       max-height: calc(100vh - 48px);
       border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 24px 60px -12px rgba(0,0,0,0.7), 0 0 40px rgba(79,70,229,0.15);
+      box-shadow: 0 24px 60px -12px rgba(0,0,0,0.8), 0 0 40px rgba(99,102,241,0.2);
       border: 1px solid rgba(255,255,255,0.12);
       background: #07090e;
       margin-bottom: 12px;
@@ -88,7 +89,7 @@
         height: 100dvh !important;
       }
       #cyber-ivan-launcher-btn {
-        padding: 10px 16px;
+        padding: 8px 18px 8px 12px;
       }
       #cyber-ivan-iframe-box {
         position: fixed !important;
@@ -113,11 +114,11 @@
   var root = document.createElement('div');
   root.id = 'cyber-ivan-widget-root';
 
-  // Create Floating Launcher Button
+  // Create Floating Launcher Button (Image 1 Style)
   var button = document.createElement('button');
   button.id = 'cyber-ivan-launcher-btn';
   button.setAttribute('aria-label', 'Open Interview Chatbot');
-  button.innerHTML = '<div style="position:relative;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;">IZ<span style="position:absolute;bottom:0;right:0;width:8px;height:8px;background:#34d399;border:1.5px solid #0f172a;border-radius:50%;"></span></div><div style="display:flex;flex-direction:column;text-align:left;line-height:1.2;"><span style="font-size:13px;font-weight:700;">Interview Me</span><span style="font-size:10px;font-weight:500;opacity:0.85;">Cyber Version</span></div><svg style="width:18px;height:18px;margin-left:2px;fill:currentColor;" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>';
+  button.innerHTML = '<div style="position:relative;width:34px;height:34px;border-radius:50%;background:#6366f1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:inset 0 1px 2px rgba(255,255,255,0.3);">IZ<span style="position:absolute;top:-1px;right:-1px;width:9px;height:9px;background:#34d399;border:2px solid #0e131f;border-radius:50%;"></span></div><div style="display:flex;flex-direction:column;text-align:left;line-height:1.2;"><span style="font-size:14px;font-weight:700;letter-spacing:-0.01em;color:#ffffff;">Interview Me</span><span style="font-size:11px;font-weight:500;color:#94a3b8;">Cyber Version</span></div><svg style="width:20px;height:20px;margin-left:4px;color:#cbd5e1;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
 
   // Create Iframe Container
   var iframeContainer = document.createElement('div');

@@ -114,6 +114,68 @@ export const AdminDashboard: React.FC = () => {
   // Embed code copy status
   const [hasCopiedEmbed, setHasCopiedEmbed] = useState(false);
 
+  // AI Connection Diagnostic State
+  const [isTestingAi, setIsTestingAi] = useState(false);
+  const [testAiResult, setTestAiResult] = useState<string | null>(null);
+  const [testAiError, setTestAiError] = useState<string | null>(null);
+
+  const handleTestAiConnection = async () => {
+    setIsTestingAi(true);
+    setTestAiResult(null);
+    setTestAiError(null);
+    try {
+      let result = '';
+      // 1. Try server route
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [{ sender: 'user', text: "Give a 2-sentence summary of Ivan Zhao's product design background and specialties." }],
+            resumeText: resume.resumeText,
+            projects,
+            chatbotName: visualForm.chatbotName || 'Cyber Ivan',
+            chatbotTitle: visualForm.chatbotTitle || 'Senior Product Designer',
+            apiKey: visualForm.geminiApiKey,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.reply) result = data.reply;
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          console.warn('Server test response:', errData);
+        }
+      } catch (e) {
+        console.warn('Server fetch error during test:', e);
+      }
+
+      // 2. Direct client fallback test if key is present
+      const activeKey = visualForm.geminiApiKey || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+      if (!result && activeKey) {
+        const { callDirectGemini } = await import('../utils/directGemini');
+        result = await callDirectGemini({
+          apiKey: activeKey,
+          messages: [{ id: 'test_msg', sender: 'user', text: "Give a 2-sentence summary of Ivan Zhao's product design background and specialties.", timestamp: Date.now() }],
+          resumeText: resume.resumeText,
+          projects,
+          chatbotName: visualForm.chatbotName || 'Cyber Ivan',
+          chatbotTitle: visualForm.chatbotTitle || 'Senior Product Designer',
+        });
+      }
+
+      if (result) {
+        setTestAiResult(result);
+      } else {
+        throw new Error('Could not connect to Gemini API. Please ensure your Gemini API Key is entered and valid.');
+      }
+    } catch (err: any) {
+      setTestAiError(err.message || 'API test failed.');
+    } finally {
+      setIsTestingAi(false);
+    }
+  };
+
   // If user is not authenticated or not admin, show Google Sign-In gate (Feature 7)
   if (!currentUser || !isAdmin) {
     return (
@@ -318,7 +380,7 @@ export const AdminDashboard: React.FC = () => {
 
   const webflowScriptSnippet = `<!-- Cyber Ivan Portfolio AI Chatbot - Webflow 1-Line Embed -->
 <script
-  src="https://portfoliochatbot-five.vercel.app/widget.js"
+  src="https://ivan-zhao-cyber-portfolio-ai-widget.ai.studio/widget.js"
   async>
 </script>`;
 
@@ -331,23 +393,24 @@ export const AdminDashboard: React.FC = () => {
     z-index: 999999;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    background: #4f46e5;
+    gap: 14px;
+    padding: 10px 22px 10px 14px;
+    background: #0e131f;
     color: #ffffff;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 9999px;
     cursor: pointer;
-    box-shadow: 0 12px 28px -4px rgba(79, 70, 229, 0.5), 0 6px 14px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.7), 0 0 20px rgba(99, 102, 241, 0.15);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 13px;
     font-weight: 700;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
     user-select: none;
   }
   #cyber-ivan-launcher-btn:hover {
     transform: scale(1.04);
-    box-shadow: 0 18px 36px -4px rgba(79, 70, 229, 0.65), 0 8px 18px rgba(0, 0, 0, 0.5);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 20px 42px -6px rgba(0, 0, 0, 0.8), 0 0 25px rgba(99, 102, 241, 0.3);
   }
   #cyber-ivan-chat-popup {
     position: fixed;
@@ -361,7 +424,7 @@ export const AdminDashboard: React.FC = () => {
     max-height: calc(100vh - 100px);
     border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.75), 0 0 40px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: #07090e;
     animation: ciFadeIn 0.22s ease-out;
@@ -395,27 +458,27 @@ export const AdminDashboard: React.FC = () => {
     #cyber-ivan-launcher-btn {
       bottom: 16px !important;
       right: 16px !important;
-      padding: 10px 16px !important;
+      padding: 8px 18px 8px 12px !important;
     }
   }
 </style>
 
 <button id="cyber-ivan-launcher-btn" onclick="toggleCyberIvanPopup()">
-  <div style="position:relative;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;">
+  <div style="position:relative;width:34px;height:34px;border-radius:50%;background:#6366f1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:inset 0 1px 2px rgba(255,255,255,0.3);">
     IZ
-    <span style="position:absolute;bottom:0;right:0;width:8px;height:8px;background:#34d399;border:1.5px solid #0f172a;border-radius:50%;"></span>
+    <span style="position:absolute;top:-1px;right:-1px;width:9px;height:9px;background:#34d399;border:2px solid #0e131f;border-radius:50%;"></span>
   </div>
   <div style="display:flex;flex-direction:column;text-align:left;line-height:1.2;">
-    <span style="font-size:13px;font-weight:700;">Interview Me</span>
-    <span style="font-size:10px;font-weight:500;opacity:0.85;">Cyber Version</span>
+    <span style="font-size:14px;font-weight:700;letter-spacing:-0.01em;color:#ffffff;">Interview Me</span>
+    <span style="font-size:11px;font-weight:500;color:#94a3b8;">Cyber Version</span>
   </div>
-  <svg style="width:18px;height:18px;margin-left:2px;fill:currentColor;" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+  <svg style="width:20px;height:20px;margin-left:4px;color:#cbd5e1;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 </button>
 
 <div id="cyber-ivan-chat-popup">
   <iframe
     id="cyber-ivan-iframe"
-    src="https://portfoliochatbot-five.vercel.app/?mode=widget&open=true"
+    src="https://ivan-zhao-cyber-portfolio-ai-widget.ai.studio/?mode=widget&open=true"
     allow="clipboard-write"
     scrolling="no"
     title="Cyber Ivan AI Chatbot">
@@ -425,17 +488,11 @@ export const AdminDashboard: React.FC = () => {
 <script>
   function toggleCyberIvanPopup() {
     var popup = document.getElementById('cyber-ivan-chat-popup');
-    var iframe = document.getElementById('cyber-ivan-iframe');
     if (!popup) return;
     if (popup.style.display === 'block') {
       popup.style.display = 'none';
     } else {
       popup.style.display = 'block';
-      try {
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.postMessage({ type: 'CYBER_IVAN_OPEN' }, '*');
-        }
-      } catch (e) {}
     }
   }
 
@@ -452,37 +509,37 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-40 safe-top">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
+      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl px-6 py-4 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setCurrentView('portfolio')}
-              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition cursor-pointer shrink-0"
+              className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition cursor-pointer"
               title="Return to Portfolio View"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
 
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                <span className="font-bold text-white text-sm sm:text-base truncate">Cyber Ivan Control Center</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold flex items-center gap-1 shrink-0">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-white text-base">Cyber Ivan Control Center</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3" />
-                  <span>Admin</span>
+                  <span>Admin Verified</span>
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+              <p className="text-xs text-slate-400">
                 Connected to <span className="text-indigo-400">ivanzhao.design</span> • {currentUser.email}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => {
                 setIsWidgetOpen(true);
               }}
-              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-medium text-xs shadow-md shadow-indigo-600/30 flex items-center gap-1.5 transition cursor-pointer min-h-[36px]"
+              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md shadow-indigo-600/30 flex items-center gap-1.5 transition cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
               <span>Test Widget</span>
@@ -490,7 +547,7 @@ export const AdminDashboard: React.FC = () => {
 
             <button
               onClick={logout}
-              className="p-2 rounded-xl bg-slate-900 hover:bg-rose-950/40 hover:text-rose-400 border border-slate-800 text-slate-400 transition cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+              className="p-2 rounded-xl bg-slate-900 hover:bg-rose-950/40 hover:text-rose-400 border border-slate-800 text-slate-400 transition cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -500,8 +557,8 @@ export const AdminDashboard: React.FC = () => {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="border-b border-slate-800/80 bg-slate-950/40 px-3 sm:px-6">
-        <div className="max-w-7xl mx-auto flex gap-1.5 sm:gap-2 overflow-x-auto py-2.5 no-scrollbar text-xs font-medium touch-pan-x">
+      <div className="border-b border-slate-800/80 bg-slate-950/40 px-6">
+        <div className="max-w-7xl mx-auto flex gap-2 overflow-x-auto py-2.5 no-scrollbar text-xs font-medium">
           <button
             onClick={() => setActiveTab('visual')}
             className={`px-4 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer ${
@@ -577,7 +634,7 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 safe-bottom">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6">
         {/* TAB 1: VISUAL CUSTOMIZATION (Feature 1) */}
         {activeTab === 'visual' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1082,13 +1139,65 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
+                {/* AI Model & API Configuration */}
+                <div className="pt-4 border-t border-slate-800">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-white">
+                      Google Gemini API Key (Direct & Live AI Engine)
+                    </label>
+                    <span className="text-[10px] text-emerald-400 font-medium">
+                      Gemini 3.8 Flash Powered
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mb-2.5">
+                    Saving your Gemini API key here guarantees that the chatbot will generate grounded responses directly on Webflow without relying on external server environments.
+                  </p>
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="password"
+                      placeholder="AIzaSy... (Paste your Google AI Studio key)"
+                      value={visualForm.geminiApiKey || ''}
+                      onChange={(e) => setVisualForm({ ...visualForm, geminiApiKey: e.target.value })}
+                      className="flex-1 px-3 py-2 text-xs rounded-xl bg-slate-950 border border-slate-800 text-white font-mono focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleTestAiConnection}
+                      disabled={isTestingAi}
+                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-indigo-300 border border-indigo-500/30 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>{isTestingAi ? 'Testing...' : 'Test AI Connection'}</span>
+                    </button>
+                  </div>
+
+                  {/* Test Results Banner */}
+                  {testAiResult && (
+                    <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 text-xs mb-3 space-y-1">
+                      <div className="flex items-center gap-1.5 font-bold text-emerald-400 text-[11px]">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Gemini AI Connected & Generating Responses Successfully!</span>
+                      </div>
+                      <p className="text-slate-300 text-[11px] leading-relaxed italic">
+                        "{testAiResult}"
+                      </p>
+                    </div>
+                  )}
+
+                  {testAiError && (
+                    <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs mb-3">
+                      <strong>AI Connection Note:</strong> {testAiError}
+                    </div>
+                  )}
+                </div>
+
                 <div className="pt-4 border-t border-slate-800 flex justify-end">
                   <button
                     onClick={() => saveSettings(visualForm)}
                     className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
-                    <span>Save Personality & Copy</span>
+                    <span>Save Personality & API Settings</span>
                   </button>
                 </div>
               </div>
@@ -1742,6 +1851,56 @@ export const AdminDashboard: React.FC = () => {
         {/* TAB 6: LIVE PREVIEW & EMBED CODE (Feature 4) */}
         {activeTab === 'live' && (
           <div className="max-w-4xl space-y-8">
+            {/* AI Engine Status Card */}
+            <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>Gemini AI Engine Connection</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-semibold">
+                        Gemini 3.8 Flash
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Test live AI answer generation against Ivan's resume and portfolio projects in real time.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleTestAiConnection}
+                  disabled={isTestingAi}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/25 transition cursor-pointer flex items-center gap-1.5 self-start sm:self-auto disabled:opacity-50"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{isTestingAi ? 'Generating Live Response...' : '⚡ Test Live AI Response'}</span>
+                </button>
+              </div>
+
+              {testAiResult && (
+                <div className="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 text-xs space-y-1.5">
+                  <div className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Live Gemini Generation Verified:</span>
+                  </div>
+                  <p className="text-slate-200 leading-relaxed italic">
+                    "{testAiResult}"
+                  </p>
+                </div>
+              )}
+
+              {testAiError && (
+                <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs">
+                  <strong>Notice:</strong> {testAiError}
+                </div>
+              )}
+            </div>
+
             <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 space-y-6">
               <div>
                 <h3 className="text-lg font-bold text-white mb-1">

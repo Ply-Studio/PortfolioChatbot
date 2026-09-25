@@ -30,12 +30,13 @@ interface ChatRequestBody {
   chatbotTitle?: string;
   portfolioUrl?: string;
   recruiterInfo?: RecruiterInfo;
+  apiKey?: string;
 }
 
 export async function handleGeminiChat(body: ChatRequestBody): Promise<string> {
-  const apiKey = (process.env.GEMINI_API_KEY || '').trim();
+  const apiKey = (body.apiKey || process.env.GEMINI_API_KEY || '').trim();
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not configured in Vercel environment variables.');
+    throw new Error('GEMINI_API_KEY is not configured in Vercel environment variables or App Settings.');
   }
 
   const ai = new GoogleGenAI({
