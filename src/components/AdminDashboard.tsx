@@ -113,6 +113,18 @@ export const AdminDashboard: React.FC = () => {
 
   // Embed code copy status
   const [hasCopiedEmbed, setHasCopiedEmbed] = useState(false);
+  const [savedSuccessMsg, setSavedSuccessMsg] = useState<string | null>(null);
+  const [isSavingVisual, setIsSavingVisual] = useState(false);
+  const [isSavingWidget, setIsSavingWidget] = useState(false);
+  const [isSavingResume, setIsSavingResume] = useState(false);
+
+  const showSaveSuccess = (msg: string) => {
+    setSavedSuccessMsg(msg);
+    setNotification(msg);
+    setTimeout(() => {
+      setSavedSuccessMsg(null);
+    }, 4000);
+  };
 
   // AI Connection Diagnostic State
   const [isTestingAi, setIsTestingAi] = useState(false);
@@ -246,7 +258,15 @@ export const AdminDashboard: React.FC = () => {
   // Handle saving visual customizations (Feature 1)
   const handleSaveVisual = async (e: React.FormEvent) => {
     e.preventDefault();
-    await saveSettings(visualForm);
+    setIsSavingVisual(true);
+    try {
+      await saveSettings(visualForm);
+      showSaveSuccess('Visual customizations saved successfully!');
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setIsSavingVisual(false);
+    }
   };
 
   // Avatar image upload handler (reads file as base64 data URL)
@@ -262,6 +282,7 @@ export const AdminDashboard: React.FC = () => {
       const dataUrl = event.target?.result as string;
       if (dataUrl) {
         setVisualForm((prev) => ({ ...prev, avatarUrl: dataUrl }));
+        showSaveSuccess('Avatar photo loaded. Click "Save Visual Customizations" to commit.');
       }
     };
     reader.readAsDataURL(file);
@@ -270,7 +291,15 @@ export const AdminDashboard: React.FC = () => {
   // Handle saving resume (Feature 2)
   const handleSaveResume = async (e: React.FormEvent) => {
     e.preventDefault();
-    await saveResume(resumeText, resumeSummary);
+    setIsSavingResume(true);
+    try {
+      await saveResume(resumeText, resumeSummary);
+      showSaveSuccess('Resume knowledge base saved successfully!');
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setIsSavingResume(false);
+    }
   };
 
   // PDF File upload handler (Extracts text and summary from PDF via Gemini)
@@ -510,6 +539,22 @@ export const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans">
       {/* Header */}
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl px-6 py-4 sticky top-0 z-40">
+        {/* Instant Save Success Notification Banner */}
+        {savedSuccessMsg && (
+          <div className="mb-3 p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex items-center gap-2.5 font-semibold">
+              <Check className="w-4 h-4 text-emerald-400 shrink-0 stroke-[3]" />
+              <span>{savedSuccessMsg}</span>
+            </div>
+            <button
+              onClick={() => setSavedSuccessMsg(null)}
+              className="text-emerald-400 hover:text-white p-1 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -888,10 +933,20 @@ export const AdminDashboard: React.FC = () => {
                   <div className="pt-4 border-t border-slate-800 flex justify-end">
                     <button
                       type="submit"
-                      className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer"
+                      disabled={isSavingVisual}
+                      className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                     >
-                      <Save className="w-4 h-4" />
-                      <span>Save Visual Customizations</span>
+                      {isSavingVisual ? (
+                        <>
+                          <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Saving Changes...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4" />
+                          <span>Save Visual Customizations</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -1193,11 +1248,31 @@ export const AdminDashboard: React.FC = () => {
 
                 <div className="pt-4 border-t border-slate-800 flex justify-end">
                   <button
-                    onClick={() => saveSettings(visualForm)}
-                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer"
+                    disabled={isSavingWidget}
+                    onClick={async () => {
+                      setIsSavingWidget(true);
+                      try {
+                        await saveSettings(visualForm);
+                        showSaveSuccess('Widget copy, quick questions & API key saved successfully!');
+                      } catch (err: any) {
+                        console.error(err);
+                      } finally {
+                        setIsSavingWidget(false);
+                      }
+                    }}
+                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                   >
-                    <Save className="w-4 h-4" />
-                    <span>Save Personality & API Settings</span>
+                    {isSavingWidget ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Saving Settings...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        <span>Save Personality & API Settings</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -1304,10 +1379,20 @@ export const AdminDashboard: React.FC = () => {
 
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer"
+                    disabled={isSavingResume}
+                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold text-xs transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer disabled:opacity-50"
                   >
-                    <Save className="w-4 h-4" />
-                    <span>Save Resume Context</span>
+                    {isSavingResume ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Saving Resume...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        <span>Save Resume Context</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
