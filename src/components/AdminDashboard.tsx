@@ -360,18 +360,25 @@ export const AdminDashboard: React.FC = () => {
       setNotification('Please fill in Title, URL, and Description.');
       return;
     }
-    await saveProject({
-      id: editingProject.id,
-      title: editingProject.title,
-      url: editingProject.url,
-      role: editingProject.role || 'Lead Product Designer',
-      year: editingProject.year || '2024',
-      tags: editingProject.tags || [],
-      description: editingProject.description,
-      highlights: editingProject.highlights || '',
-      isFeatured: Boolean(editingProject.isFeatured),
-    });
-    setEditingProject(null);
+    const projectTitle = editingProject.title;
+    try {
+      await saveProject({
+        id: editingProject.id,
+        title: editingProject.title,
+        url: editingProject.url,
+        role: editingProject.role || 'Lead Product Designer',
+        year: editingProject.year || '2024',
+        tags: editingProject.tags || [],
+        description: editingProject.description,
+        highlights: editingProject.highlights || '',
+        isFeatured: Boolean(editingProject.isFeatured),
+      });
+      showSaveSuccess(`Project "${projectTitle}" details saved successfully!`);
+    } catch (err: any) {
+      console.error(err);
+    } finally {
+      setEditingProject(null);
+    }
   };
 
   // Add tag to project

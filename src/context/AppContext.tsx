@@ -68,12 +68,35 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [settings, setSettings] = useState<WidgetSettings>(DEFAULT_WIDGET_SETTINGS);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [resume, setResume] = useState<ResumeKnowledge>({
-    resumeText: DEFAULT_RESUME_TEXT,
-    summary: 'Senior Product Designer & Design Technologist with 7+ years in enterprise SaaS & AI interfaces.',
-    updatedAt: new Date().toISOString(),
+  const [settings, setSettings] = useState<WidgetSettings>(() => {
+    try {
+      const cached = localStorage.getItem('cyber_ivan_settings');
+      if (cached) {
+        return {
+          ...DEFAULT_WIDGET_SETTINGS,
+          ...JSON.parse(cached),
+        };
+      }
+    } catch (e) {}
+    return DEFAULT_WIDGET_SETTINGS;
+  });
+  const [projects, setProjects] = useState<Project[]>(() => {
+    try {
+      const cached = localStorage.getItem('cyber_ivan_projects');
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return DEFAULT_PROJECTS.map((p, idx) => ({ ...p, id: `proj_default_${idx + 1}` }));
+  });
+  const [resume, setResume] = useState<ResumeKnowledge>(() => {
+    try {
+      const cached = localStorage.getItem('cyber_ivan_resume');
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return {
+      resumeText: DEFAULT_RESUME_TEXT,
+      summary: 'Senior Product Designer & Design Technologist with 7+ years in enterprise SaaS & AI interfaces.',
+      updatedAt: new Date().toISOString(),
+    };
   });
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
@@ -110,17 +133,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data() as WidgetSettings;
-          setSettings({
+          const merged = {
             ...DEFAULT_WIDGET_SETTINGS,
             ...data,
-          });
-        } else {
-          // Initialize with default settings if not exists
-          setSettings(DEFAULT_WIDGET_SETTINGS);
+          };
+          setSettings(merged);
+          try {
+            localStorage.setItem('cyber_ivan_settings', JSON.stringify(merged));
+          } catch (e) {}
         }
       },
       (error) => {
-        console.warn('Failed to listen to settings/widget, using defaults:', error);
+        console.warn('Failed to listen to settings/widget, keeping cached:', error);
       }
     );
     return () => unsub();
@@ -135,10 +159,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (snapshot.exists()) {
           const data = snapshot.data() as ResumeKnowledge;
           setResume(data);
+          try {
+            localStorage.setItem('cyber_ivan_resume', JSON.stringify(data));
+          } catch (e) {}
         }
       },
       (error) => {
-        console.warn('Failed to listen to knowledge/resume, using default resume:', error);
+        console.warn('Failed to listen to knowledge/resume, keeping cached:', error);
       }
     );
     return () => unsub();
@@ -227,6 +254,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Save Settings
   const saveSettings = async (newSettings: WidgetSettings) => {
+    // Optimistically update React state and browser storage immediately
+    setSettings(newSettings);
+    try {
+      localStorage.setItem('cyber_ivan_settings', JSON.stringify(newSettings));
+    } catch (e) {}
+
     const path = 'settings/widget';
     try {
       const docRef = doc(db, 'settings', 'widget');
@@ -234,29 +267,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ...newSettings,
         updatedAt: new Date().toISOString(),
       });
-      setSettings(newSettings);
       setNotification('Widget customizations saved successfully!');
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, path);
+      console.warn('Firestore settings write warning:', error);
+      setNotification('Widget customizations saved locally.');
     }
   };
 
   // Save Resume Knowledge
   const saveResume = async (resumeText: string, summary?: string, fileName?: string) => {
+    const payload: ResumeKnowledge = {
+      resumeText,
+      summary: summary || resume.summary || 'Ivan Zhao Product Designer Resume',
+      uploadedFileName: fileName || resume.uploadedFileName || 'Ivan_Zhao_Resume.pdf',
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Optimistically update React state and browser storage immediately
+    setResume(payload);
+    try {
+      localStorage.setItem('cyber_ivan_resume', JSON.stringify(payload));
+    } catch (e) {}
+
     const path = 'knowledge/resume';
     try {
       const docRef = doc(db, 'knowledge', 'resume');
-      const payload: ResumeKnowledge = {
-        resumeText,
-        summary: summary || resume.summary || 'Ivan Zhao Product Designer Resume',
-        uploadedFileName: fileName || resume.uploadedFileName || 'Ivan_Zhao_Resume.pdf',
-        updatedAt: new Date().toISOString(),
-      };
       await setDoc(docRef, payload);
-      setResume(payload);
       setNotification('Resume data updated for Cyber Ivan AI!');
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, path);
+      console.warn('Firestore resume write warning:', error);
+      setNotification('Resume data saved locally.');
     }
   };
 
@@ -264,28 +304,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const saveProject = async (projectData: Omit<Project, 'id'> & { id?: string }) => {
     const id = projectData.id || `proj_${Date.now()}`;
     const path = `projects/${id}`;
+    
+    const payload: Project = {
+      id,
+      title: projectData.title,
+      url: projectData.url,
+      role: projectData.role,
+      year: projectData.year || '2024',
+      tags: projectData.tags || [],
+      description: projectData.description,
+      highlights: projectData.highlights || '',
+      isFeatured: Boolean(projectData.isFeatured),
+      createdAt: projectData.createdAt || new Date().toISOString(),
+    };
+
+    // Optimistically update state and localStorage
+    setProjects((prev) => {
+      const exists = prev.some((p) => p.id === id);
+      const updated = exists
+        ? prev.map((p) => (p.id === id ? payload : p))
+        : [payload, ...prev];
+      try {
+        localStorage.setItem('cyber_ivan_projects', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
     try {
       const docRef = doc(db, 'projects', id);
-      const payload: Omit<Project, 'id'> = {
-        title: projectData.title,
-        url: projectData.url,
-        role: projectData.role,
-        year: projectData.year || '2024',
-        tags: projectData.tags || [],
-        description: projectData.description,
-        highlights: projectData.highlights || '',
-        isFeatured: Boolean(projectData.isFeatured),
-        createdAt: projectData.createdAt || new Date().toISOString(),
-      };
-      await setDoc(docRef, payload);
+      const { id: _, ...firestorePayload } = payload;
+      await setDoc(docRef, firestorePayload);
       setNotification(`Project "${projectData.title}" saved successfully!`);
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, path);
+      console.warn('Firestore write warning:', error);
+      setNotification(`Project "${projectData.title}" saved locally.`);
     }
   };
 
   // Delete Project
   const deleteProject = async (projectId: string) => {
+    setProjects((prev) => {
+      const updated = prev.filter((p) => p.id !== projectId);
+      try {
+        localStorage.setItem('cyber_ivan_projects', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
     const path = `projects/${projectId}`;
     try {
       await deleteDoc(doc(db, 'projects', projectId));
